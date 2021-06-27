@@ -7,6 +7,8 @@ import { Question } from '../components/Question';
 
 import logoImg from '../assets/images/logo.svg';
 import deleteImg from '../assets/images/delete.svg';
+import checkImg from '../assets/images/check.svg';
+import answerImg from '../assets/images/answer.svg';
 
 import '../styles/room.scss';
 import { database } from '../services/firebase';
@@ -20,6 +22,18 @@ export function AdminRoom() {
 	const roomId = params.id;
 	const { questions, title } = useRoom(roomId);
 	const history = useHistory();
+
+	const handleCheckQuestionAsAnswered = async (questionId: string) => {
+		await database.ref(`rooms/${roomId}/questions/${questionId}`).update({
+			isAnswered: true,
+		});
+	};
+
+	const handleHighlightQuestion = async (questionId: string) => {
+		await database.ref(`rooms/${roomId}/questions/${questionId}`).update({
+			isHighlighted: true,
+		});
+	};
 
 	const handleDeleteQuestion = async (questionId: string) => {
 		if (window.confirm('Tem certeza que você deseja excluir esta pergunta?')) {
@@ -68,7 +82,27 @@ export function AdminRoom() {
 								key={question.id}
 								content={question.content}
 								author={question.author}
+								isAnswered={question.isAnswered}
+								isHighligthed={question.isHighlighted}
 							>
+								{!question.isAnswered && (
+									<>
+										<button
+											type="button"
+											onClick={() => handleCheckQuestionAsAnswered(question.id)}
+										>
+											<img src={checkImg} alt="Marcar pergunta" />
+										</button>
+
+										<button
+											type="button"
+											onClick={() => handleHighlightQuestion(question.id)}
+										>
+											<img src={answerImg} alt="Responder pergunta" />
+										</button>
+									</>
+								)}
+
 								<button
 									type="button"
 									onClick={() => handleDeleteQuestion(question.id)}
